@@ -1,0 +1,46 @@
+﻿@page "/"
+@using CodeAssistant.Web.Services
+@inject OpenAIService OpenAIService
+@inject AppDbContext DbContext
+
+<div class="container">
+    <div class="panels">
+        <div class="left-panel">
+            <label for="prompt" class="prompt-label"><b>Send some code to AI:</b></label>
+            <form @onsubmit="SubmitForm" class="prompt-form">
+                <textarea id="prompt" @bind="prompt" class="form-control editor"></textarea>
+                <div class="submit-section">
+                    <button type="submit" class="btn btn-primary" disabled="@isLoading">Send</button>
+                    @if (isLoading)
+                    {
+                        <div class="spinner"></div>
+                    }
+                </div>
+            </form>
+
+        </div>
+
+        <div class="right-panel">
+            <b>Response:</b>
+            @if (response != null)
+            {
+                <div class="alert alert-info response">
+                    <strong></strong>@response
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string prompt;
+    private string response;
+    private bool isLoading = false;
+
+    private async Task SubmitForm()
+    {
+        isLoading = true;
+        response = await OpenAIService.GetResponseAsync(prompt, DbContext);
+        isLoading = false;
+    }
+}
